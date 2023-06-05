@@ -2,7 +2,8 @@
 A simple Spring Boot employee application, which saves randomly generated employee data to an In-Memory H2 Database at start up.  
 This is handled by a Employee Repository Interface of JpaRepository covering the Book Entity.  
 OneToOne relationshit to Workstation Entity.  
-OneToMany relationship to Address Entity.
+OneToMany relationship to Address Entity.  
+ManyToMany relationship to Course Entity.  
 
 Accessible Endpoints at http://localhost:8080:
 
