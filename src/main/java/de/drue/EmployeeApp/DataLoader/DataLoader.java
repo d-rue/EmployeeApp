@@ -11,10 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Random;
-import java.util.Set;
+
+import java.util.*;
 
 @Component
 @Slf4j
@@ -59,12 +57,12 @@ public class DataLoader implements ApplicationRunner {
                     .birthday(faker.date().birthday())
                     .title(faker.name().title())
                     .userName(faker.artist().name())
-                    .addresses(new HashSet<>())
+                    .addresses(new ArrayList<>())
                     .courses(new HashSet<>())
                     .build();
 
             // Add Addresses to Employee - OneToMany
-            Set<Address> setAddresses = new HashSet<>();
+            List<Address> listAddresses = new ArrayList<>();
             for (int n = 0; n <=randomInt.nextInt(5); n++){
                 Address tmpAddress = Address
                         .builder()
@@ -75,9 +73,9 @@ public class DataLoader implements ApplicationRunner {
                         .streetName(faker.address().streetName())
                         .streetAddressNumber(Integer.parseInt(faker.address().streetAddressNumber()))
                         .build();
-                setAddresses.add(tmpAddress);
+                listAddresses.add(tmpAddress);
             }
-            tmpEmp.setAddresses(setAddresses);
+            tmpEmp.setAddresses(listAddresses);
 
             // Add Workstation to Employee - OneToOne
             Workstation tmpWorkstation = Workstation.builder()

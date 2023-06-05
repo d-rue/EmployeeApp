@@ -20,6 +20,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -47,7 +48,7 @@ public class Employee {
     private String phoneNumber;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_EMPLOYEE_ID", referencedColumnName = "ID")
-    private Set<Address> addresses;
+    private List<Address> addresses;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_WORKSTATION_ID", referencedColumnName = "ID")
     @JsonManagedReference
