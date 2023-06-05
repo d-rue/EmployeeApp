@@ -22,3 +22,7 @@ Tests are in the Test Folder:
 | DataControllerTests |
 | DataServiceTests |
 | EmployeeRepositoryTests |
+
+CI/CD:  
+Java with Maven  
+Build & Push Docker image
