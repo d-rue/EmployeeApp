@@ -1,22 +1,14 @@
 package de.drue.EmployeeApp.Entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Data
@@ -43,9 +35,22 @@ public class Employee {
     private String phoneNumber;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_EMPLOYEE_ID", referencedColumnName = "ID")
-    private List<Address> addresses;
+    private Set<Address> addresses;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_WORKSTATION_ID", referencedColumnName = "ID")
     @JsonManagedReference
     private Workstation workstation;
+    @ManyToMany(fetch = FetchType.EAGER,
+            cascade = {
+                    CascadeType.MERGE
+            })
+    @JoinTable(
+            name = "EMPLOYEE_COURSE",
+            joinColumns = {
+                    @JoinColumn(name = "EMPLOYEE_ID", referencedColumnName = "ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
+            })
+    private Set<Course> courses;
 }
