@@ -21,7 +21,7 @@ public class DataServiceTests {
     private EmployeeRepository employeeRepository;
     @InjectMocks
     private DataService dataService;
-    Faker faker = new Faker(Locale.GERMAN);
+    private Faker faker = new Faker(Locale.GERMAN);
 
     @Test
     public void DataService_GetEmployeeData_FindAll_ReturnsListOfEmployees(){

@@ -32,7 +32,7 @@ public class DataControllerTests {
     private MockMvc mockMvc;
     @MockBean
     private DataService dataService;
-    Faker faker = new Faker(Locale.GERMAN);
+    private Faker faker = new Faker(Locale.GERMAN);
     private Employee firstEmployee;
     private Employee secondEmployee;
     private List<Employee> listEmployees;
