@@ -7,25 +7,26 @@ import de.drue.EmployeeApp.Entity.Employee;
 import de.drue.EmployeeApp.Entity.Workstation;
 import de.drue.EmployeeApp.Repository.CourseRepository;
 import de.drue.EmployeeApp.Repository.EmployeeRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
-import java.util.*;
-
+@RequiredArgsConstructor
 @Component
 @Slf4j
 public class DataLoader implements ApplicationRunner {
-    private Random randomInt = new Random();
-    private Faker faker = new Faker(new Locale("de"));
     private final CourseRepository courseRepository;
     private final EmployeeRepository employeeRepository;
-
-    public DataLoader(CourseRepository courseRepository, EmployeeRepository employeeRepository) {
-        this.courseRepository = courseRepository;
-        this.employeeRepository = employeeRepository;
-    }
+    private Random randomInt = new Random();
+    private Faker faker = new Faker(new Locale("de"));
 
     public void run(ApplicationArguments args) {
         // Courses
@@ -86,16 +87,13 @@ public class DataLoader implements ApplicationRunner {
             Integer tmpInt = randomInt.nextInt(3);
             if (tmpInt.equals(1)){
                 tmpEmp.getCourses().add(courseSpring);
-            }
-            else if (tmpInt.equals(2)) {
+            } else if (tmpInt.equals(2)) {
                 tmpEmp.getCourses().add(courseSpring);
                 tmpEmp.getCourses().add(courseQuery);
-            }
-            else if (tmpInt.equals(3)) {
+            } else if (tmpInt.equals(3)) {
                 tmpEmp.getCourses().add(courseSpring);
                 tmpEmp.getCourses().add(courseJava);
-            }
-            else {
+            } else {
                 tmpEmp.getCourses().add(courseJava);
                 tmpEmp.getCourses().add(courseSpring);
                 tmpEmp.getCourses().add(courseQuery);
