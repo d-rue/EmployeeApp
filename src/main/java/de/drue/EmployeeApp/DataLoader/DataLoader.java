@@ -28,7 +28,7 @@ public class DataLoader implements ApplicationRunner {
     private Random randomInt = new Random();
     private Faker faker = new Faker(new Locale("de"));
 
-    public void run(ApplicationArguments args) {
+    public void run(final ApplicationArguments args) {
         // Courses
         Set<Course> setCourses = new HashSet<>();
 

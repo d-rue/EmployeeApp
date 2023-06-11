@@ -101,7 +101,7 @@ public class DataController {
     @RequestMapping(value = "/search/fnalnaun/{firstname}/{lastname}/{username}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Employee>> listDataByFirstNameAndLastNameAndUserName(@PathVariable String firstname, @PathVariable final String lastname, @PathVariable final String username){
+    public ResponseEntity<List<Employee>> listDataByFirstNameAndLastNameAndUserName(@PathVariable final String firstname, @PathVariable final String lastname, @PathVariable final String username){
         return new ResponseEntity<>(dataService.getEmployeeDataFindByFirstNameAndLastNameAndUserName(firstname, lastname, username),
                 HttpStatus.OK);
     }
