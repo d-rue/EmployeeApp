@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Optional;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
@@ -35,7 +34,7 @@ public class DataControllerTests {
     private DataService dataService;
     @Autowired
     private ObjectMapper objectMapper;
-    private Faker faker = new Faker(Locale.GERMAN);
+    private final Faker faker = new Faker(Locale.GERMAN);
     private Employee employee;
     private List<Employee> listEmployees;
 
@@ -46,7 +45,6 @@ public class DataControllerTests {
                 .firstName(faker.address().firstName())
                 .lastName(faker.name().lastName())
                 .phoneNumber(faker.phoneNumber().phoneNumber())
-                .birthday(faker.date().birthday())
                 .title(faker.name().title())
                 .userName(faker.artist().name())
                 .workstation(Workstation.builder()
@@ -77,6 +75,7 @@ public class DataControllerTests {
     @Test
     public void dataControllerListDataReturnsListEmployees() throws Exception {
         // Arrange
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
         when(dataService.getEmployeeDataFindAll()).thenReturn(listEmployees);
 
         // Act
@@ -84,56 +83,13 @@ public class DataControllerTests {
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(listEmployees.get(0).getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(listEmployees.get(0).getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(listEmployees.get(0).getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(listEmployees.get(0).getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(listEmployees.get(0).getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(listEmployees.get(0).getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(listEmployees.get(0).getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(listEmployees.get(0).getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(listEmployees.get(0).getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(listEmployees.get(0).getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(listEmployees.get(0).getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(listEmployees.get(0).getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(listEmployees.get(0).getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(listEmployees.get(0).getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(listEmployees.get(0).getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(listEmployees.get(0).getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(listEmployees.get(0).getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(listEmployees.get(0).getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(listEmployees.get(0).getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(listEmployees.get(0).getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(listEmployees.get(0).getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByIdReturnsOptionalEmployee() throws Exception {
         // Arrange
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(employee);
         when(dataService.getEmployeeDataFindById(1L)).thenReturn(Optional.of(employee));
 
         // Act
@@ -141,634 +97,160 @@ public class DataControllerTests {
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(employee))
-                );
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstName("vorname")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstName("vorname")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fn/vorname"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByLastNameReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByLastName("nachname")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByLastName("nachname")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/ln/nachname"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByUserNameReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByUserName("username")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByUserName("username")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/un/username"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameContainingReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstNameContaining("ab")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstNameContaining("ab")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fncontain/ab"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameNotContainingReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstNameNotContaining("z_y_q")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstNameNotContaining("z_y_q")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fnnotcontain/z_y_q"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameStartsWithReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstNameStartsWith("am")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstNameStartsWith("am")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fnstarts/am"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameEndsWithReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstNameEndsWith("fe")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstNameEndsWith("fe")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fnends/fe"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameAndLastNameReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstNameAndLastName("vorname", "nachname")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstNameAndLastName("vorname", "nachname")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fnaln/vorname/nachname"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByFirstNameAndLastNameAndUserNameReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByFirstNameAndLastNameAndUserName("vorname", "nachname", "username")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByFirstNameAndLastNameAndUserName("vorname", "nachname", "username")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/fnalnaun/vorname/nachname/username"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByAddressCityReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByAddressCity("Stuttgart")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByAddressCity("Stuttgart")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/address/Stuttgart"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 
     @Test
     public void dataControllerListDataByCourseTitleReturnsListEmployee() throws Exception {
         // Arrange
-        when(dataService.getEmployeeDataFindByCourseTitle("Spring Boot")).thenReturn(List.of(employee));
+        String expected = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(listEmployees);
+        when(dataService.getEmployeeDataFindByCourseTitle("Spring Boot")).thenReturn(listEmployees);
 
         // Act
         ResultActions response = mockMvc.perform(get("/api/search/course/Spring Boot"));
 
         // Assert
         response.andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].id").value(1))
-                .andExpect(jsonPath("$.[0].firstName").isString())
-                .andExpect(jsonPath("$.[0].firstName").value(employee.getFirstName()))
-                .andExpect(jsonPath("$.[0].lastName").isString())
-                .andExpect(jsonPath("$.[0].lastName").value(employee.getLastName()))
-                .andExpect(jsonPath("$.[0].userName").isString())
-                .andExpect(jsonPath("$.[0].userName").value(employee.getUserName()))
-                .andExpect(jsonPath("$.[0].title").isString())
-                .andExpect(jsonPath("$.[0].title").value(employee.getTitle()))
-                .andExpect(jsonPath("$.[0].birthday").exists())
-                .andExpect(jsonPath("$.[0].phoneNumber").isString())
-                .andExpect(jsonPath("$.[0].phoneNumber").value(employee.getPhoneNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[0].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].id").value(employee.getAddresses().get(0).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[0].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].country").value(employee.getAddresses().get(0).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[0].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].state").value(employee.getAddresses().get(0).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].zip").value(employee.getAddresses().get(0).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[0].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].city").value(employee.getAddresses().get(0).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetName").value(employee.getAddresses().get(0).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[0].streetAddressNumber").value(employee.getAddresses().get(0).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].addresses.[1].id").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].id").value(employee.getAddresses().get(1).getId()))
-                .andExpect(jsonPath("$.[0].addresses.[1].country").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].country").value(employee.getAddresses().get(1).getCountry()))
-                .andExpect(jsonPath("$.[0].addresses.[1].state").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].state").value(employee.getAddresses().get(1).getState()))
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].zip").value(employee.getAddresses().get(1).getZip()))
-                .andExpect(jsonPath("$.[0].addresses.[1].city").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].city").value(employee.getAddresses().get(1).getCity()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").isString())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetName").value(employee.getAddresses().get(1).getStreetName()))
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").isNumber())
-                .andExpect(jsonPath("$.[0].addresses.[1].streetAddressNumber").value(employee.getAddresses().get(1).getStreetAddressNumber()))
-                .andExpect(jsonPath("$.[0].workstation.id").isNumber())
-                .andExpect(jsonPath("$.[0].workstation.id").value(employee.getWorkstation().getId()))
-                .andExpect(jsonPath("$.[0].workstation.name").isString())
-                .andExpect(jsonPath("$.[0].workstation.name").value(employee.getWorkstation().getName()));
+                .andExpect(content().json(expected));
     }
 }
