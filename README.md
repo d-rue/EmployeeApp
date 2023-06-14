@@ -8,7 +8,9 @@ ManyToMany relationship to Course Entity.
 Some JPA Queries in the EmployeeRepository
   
   
-Accessible Endpoints at localhost:8080  
+Accessible Endpoints  
+dev-Environment: localhost:8080  
+prod-Environment: localhost:80  
   
 | HTTP Methode | URL                                               | Decription                                        |
 | --- |---------------------------------------------------|---------------------------------------------------|
@@ -25,6 +27,8 @@ Accessible Endpoints at localhost:8080
 | GET: | "/api/search/fnalnaun/{firstname}/{lastname}/{username}" | List Employee by Firstname, Lastname and Username |
 | GET: | "/api/search/address/{city}"                         | List Employee by City of Addresses                |
 | GET: | "/api/search/course/{title}"                         | List Employee by Title of Courses                 |
+  
+OpenAPI/Swagger in dev-Environment at localhost:8080/swagger-ui.html  
   
   
 Tests are in the Test Folder:  
